@@ -1,3 +1,4 @@
+# COMPLETE updated file — existing code preserved with changes merged in
 # API
 
 There is no custom HTTP API yet. The homepage is a Server Component that calls Supabase directly.
@@ -28,3 +29,9 @@ There is no custom HTTP API yet. The homepage is a Server Component that calls S
 ## Later routes
 
 Cart, checkout, and account routes should be added under `src/app` and should call the server client. Do not expose the service role key to a route the browser can call.
+
+## Stripe Checkout Session
+
+Route `/api/checkout_sessions`, implemented in `src/app/api/checkout_sessions/route.ts`.
+
+Creates a Stripe Checkout Session in test mode. Receives cart items, fetches current prices from `public.watches`, and returns the session ID.

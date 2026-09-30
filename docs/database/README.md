@@ -1,3 +1,4 @@
+# COMPLETE updated file — existing code preserved with changes merged in
 # Database
 
 Supabase Postgres, schema `public`. The storefront reads one table.
@@ -15,6 +16,7 @@ Supabase Postgres, schema `public`. The storefront reads one table.
 | `hands` | `text` | CSS color for the hour markers and hands. |
 | `bezel` | `text` | CSS color for the ring, second hand, and crown. |
 | `sort_order` | `integer` | Ascending. The first row is the hero watch. |
+| `image_url` | `text` | Nullable. URL to the watch image stored in Supabase. |
 
 ## Access
 
@@ -31,7 +33,7 @@ Opening rows: Meridian `TZ-01` ($1,280), Harbor `TZ-02` ($1,450), Night Index `T
 Insert a row with all columns above. Set `sort_order` to place it. The homepage query is:
 
 ```sql
-select name, reference, price, summary, dial, hands, bezel
+select name, reference, price, summary, dial, hands, bezel, image_url
 from public.watches
 order by sort_order asc;
 ```
