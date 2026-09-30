@@ -1,42 +1,53 @@
-// Full file content here
-import { NextApiRequest, NextApiResponse } from 'next';
-import { stripe } from '@/lib/stripe';
-import { getWatches } from '@/lib/watches';
+import { NextResponse } from "next/server";
+import { getStripe } from "@/lib/stripe";
+import { getWatches } from "@/lib/watches";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).end(`Method ${req.method} Not Allowed`);
+type CheckoutItem = {
+  reference?: string;
+  quantity?: number;
+};
+
+export async function POST(request: Request) {
+  const stripe = getStripe();
+
+  if (!stripe) {
+    return NextResponse.json({ error: "Demo Stripe is not configured." }, { status: 503 });
   }
 
-  const { cartItems } = req.body;
+  const body = (await request.json()) as { cartItems?: CheckoutItem[] };
+  const cartItems = Array.isArray(body.cartItems) ? body.cartItems : [];
+  const watches = await getWatches();
+  const lineItems = cartItems.flatMap((item) => {
+    const watch = watches.find((entry) => entry.reference === item.reference);
+    const quantity = Number(item.quantity);
 
-  try {
-    const watches = await getWatches();
-    const lineItems = cartItems.map((item: any) => {
-      const watch = watches.find(w => w.reference === item.reference);
-      return {
+    if (!watch || !Number.isInteger(quantity) || quantity < 1) {
+      return [];
+    }
+
+    return [
+      {
+        quantity,
         price_data: {
-          currency: 'usd',
-          product_data: {
-            name: watch?.name,
-          },
-          unit_amount: watch?.price * 100,
+          currency: "usd" as const,
+          unit_amount: watch.price * 100,
+          product_data: { name: watch.name },
         },
-        quantity: item.quantity,
-      };
-    });
+      },
+    ];
+  });
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: lineItems,
-      mode: 'payment',
-      success_url: `${req.headers.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.origin}/cart`,
-    });
-
-    res.status(200).json({ id: session.id });
-  } catch (err) {
-    res.status(500).json({ error: 'Internal Server Error' });
+  if (lineItems.length === 0) {
+    return NextResponse.json({ error: "No valid cart items." }, { status: 400 });
   }
+
+  const origin = request.headers.get("origin") ?? new URL(request.url).origin;
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    line_items: lineItems,
+    success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${origin}/cart`,
+  });
+
+  return NextResponse.json({ url: session.url });
 }

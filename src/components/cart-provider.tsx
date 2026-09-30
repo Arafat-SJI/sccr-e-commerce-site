@@ -1,81 +1,98 @@
-// Full file content here
-import React, { createContext, useContext, useState, useEffect } from 'react';
+"use client";
 
-interface CartItem {
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
+
+export type CartItem = {
   reference: string;
   name: string;
   price: number;
   quantity: number;
-  image_url?: string;
-}
+  image_url?: string | null;
+  dial?: string;
+  hands?: string;
+  bezel?: string;
+};
 
-interface CartContextType {
+type CartContextType = {
   cart: CartItem[];
-  addToCart: (reference: string) => void;
+  addToCart: (item: Omit<CartItem, "quantity">) => void;
   updateQuantity: (reference: string, quantity: number) => void;
   removeFromCart: (reference: string) => void;
   clearCart: () => void;
-}
+};
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider: React.FC = ({ children }) => {
+export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const storedCart = localStorage.getItem('cart');
+    const storedCart = localStorage.getItem("cart");
+
     if (storedCart) {
-      setCart(JSON.parse(storedCart));
+      try {
+        const parsed = JSON.parse(storedCart) as CartItem[];
+        if (Array.isArray(parsed)) {
+          setCart(parsed);
+        }
+      } catch {
+        localStorage.removeItem("cart");
+      }
     }
+
+    setReady(true);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
+    if (!ready) {
+      return;
+    }
 
-  const addToCart = (reference: string) => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart, ready]);
+
+  const addToCart = useCallback((item: Omit<CartItem, "quantity">) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.reference === reference);
+      const existingItem = prevCart.find((entry) => entry.reference === item.reference);
+
       if (existingItem) {
-        return prevCart.map((item) =>
-          item.reference === reference
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
+        return prevCart.map((entry) =>
+          entry.reference === item.reference ? { ...entry, quantity: entry.quantity + 1 } : entry,
         );
       }
-      return [...prevCart, { reference, name: '', price: 0, quantity: 1 }];
+
+      return [...prevCart, { ...item, quantity: 1 }];
     });
-  };
+  }, []);
 
-  const updateQuantity = (reference: string, quantity: number) => {
+  const updateQuantity = useCallback((reference: string, quantity: number) => {
     setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.reference === reference ? { ...item, quantity } : item
-      )
+      prevCart.map((item) => (item.reference === reference ? { ...item, quantity } : item)),
     );
-  };
+  }, []);
 
-  const removeFromCart = (reference: string) => {
+  const removeFromCart = useCallback((reference: string) => {
     setCart((prevCart) => prevCart.filter((item) => item.reference !== reference));
-  };
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCart([]);
-  };
+  }, []);
 
   return (
-    <CartContext.Provider
-      value={{ cart, addToCart, updateQuantity, removeFromCart, clearCart }}
-    >
+    <CartContext.Provider value={{ cart, addToCart, updateQuantity, removeFromCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );
-};
+}
 
-export const useCart = () => {
+export function useCart() {
   const context = useContext(CartContext);
+
   if (!context) {
-    throw new Error('useCart must be used within a CartProvider');
+    throw new Error("useCart must be used within a CartProvider");
   }
+
   return context;
-};
+}

@@ -1,8 +1,11 @@
-// Full file content here
-import Stripe from 'stripe';
+import Stripe from "stripe";
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY || '';
+export function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY;
 
-export const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: '2020-08-27',
-});
+  if (!key) {
+    return null;
+  }
+
+  return new Stripe(key);
+}

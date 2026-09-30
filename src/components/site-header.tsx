@@ -1,11 +1,12 @@
 // COMPLETE updated file — existing code preserved with changes merged in
+'use client';
 import { useCart } from '@/components/cart-provider';
 
 const links = [
-  { href: '#collection', label: 'Collection' },
-  { href: '#house', label: 'The house' },
-  { href: '#visit', label: 'Visit' },
-  { href: '/all-product', label: 'All pieces' },
+  { href: "/#collection", label: "Collection" },
+  { href: "/#house", label: "The house" },
+  { href: "/#visit", label: "Visit" },
+  { href: "/all-product", label: "All pieces" },
 ];
 
 export function SiteHeader() {

@@ -1,4 +1,3 @@
-# COMPLETE updated file — existing code preserved with changes merged in
 # Database
 
 Supabase Postgres, schema `public`. The storefront reads one table.

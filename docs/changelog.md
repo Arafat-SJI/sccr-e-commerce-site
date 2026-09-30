@@ -1,4 +1,3 @@
-# COMPLETE updated file — existing code preserved with changes merged in
 # Changelog
 
 ## 2026-09-30
@@ -10,8 +9,6 @@
 
 ## 2026-10-01
 
-- Implemented all-product catalog, shopping cart, and demo Stripe checkout.
-- Added `image_url` to `public.watches` schema.
-- Created `/all-product` and `/cart` pages.
-- Added Stripe Checkout integration.
-- Updated documentation for new features and API.
+- Implemented `/all-product`, `/cart`, and demo Stripe checkout.
+- Watch images use Supabase `image_url`, then `public/watches/<reference>.svg`, then `WatchFace`.
+- Checkout prices are read from `public.watches` in `POST /api/checkout_sessions`.

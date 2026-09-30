@@ -4,7 +4,10 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
-  image_url?: string;
+  image_url?: string | null;
+  dial?: string;
+  hands?: string;
+  bezel?: string;
 }
 
 export function getCart(): CartItem[] {
