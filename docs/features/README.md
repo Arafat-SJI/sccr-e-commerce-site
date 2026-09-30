@@ -33,3 +33,11 @@ Displays cart items with image, name, reference, unit price, quantity, line tota
 ## Stripe Checkout
 
 Demo checkout using Stripe test mode. **Check out** posts to `/api/checkout_sessions` and redirects to the session URL. Success is `/checkout/success`, which clears the cart. Cancel returns to `/cart`. Missing `STRIPE_SECRET_KEY` returns an error and does not mark the order paid.
+
+## Authentication
+
+- Routes: `/register` and `/login`.
+- Registration collects name, email, password, and confirm password. Client-side checks ensure email is present, password is at least 8 characters, and both passwords match. The name is saved to Supabase user metadata as `full_name`.
+- Login uses email and password. Invalid credentials remain on the page with the Supabase error message.
+- Header session state is read on the server. When signed out, the header shows "Log in" (link to `/login`). When signed in, the header shows the user’s name (from metadata) or their email and a **Log out** button.
+- Sessions persist across refresh via the existing Supabase cookie refresh in `src/proxy.ts`.

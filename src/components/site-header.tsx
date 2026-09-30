@@ -1,6 +1,8 @@
 // COMPLETE updated file — existing code preserved with changes merged in
 'use client';
 import { useCart } from '@/components/cart-provider';
+import type { User } from '@supabase/supabase-js';
+import { LogoutButton } from '@/components/auth/logout-button';
 
 const links = [
   { href: "/#collection", label: "Collection" },
@@ -9,9 +11,10 @@ const links = [
   { href: "/all-product", label: "All pieces" },
 ];
 
-export function SiteHeader() {
+export function SiteHeader({ user }: { user: User | null }) {
   const { cart } = useCart();
   const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const displayName = user?.user_metadata?.full_name || user?.email || '';
 
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur-md">
@@ -25,7 +28,7 @@ export function SiteHeader() {
         >
           Timezone
         </a>
-        <nav aria-label="Primary" className="flex gap-6 text-sm">
+        <nav aria-label="Primary" className="flex items-center gap-6 text-sm">
           {links.map((link) => (
             <a
               key={link.href}
@@ -35,6 +38,21 @@ export function SiteHeader() {
               {link.label}
             </a>
           ))}
+
+          {user ? (
+            <div className="flex items-center gap-3 text-ink-soft">
+              <span className="hidden sm:inline" title={displayName}>{displayName}</span>
+              <LogoutButton />
+            </div>
+          ) : (
+            <a
+              href="/login"
+              className="text-ink-soft transition-colors hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brass"
+            >
+              Log in
+            </a>
+          )}
+
           <a
             href="/cart"
             className="text-ink-soft transition-colors hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brass"

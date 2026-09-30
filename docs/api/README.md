@@ -31,3 +31,15 @@ The homepage is a Server Component that calls Supabase directly. Checkout is the
 `POST /api/checkout_sessions`, implemented in `src/app/api/checkout_sessions/route.ts`.
 
 Creates a Stripe Checkout Session in test mode. The body is `{ cartItems: [{ reference, quantity }] }`. Prices are read from `public.watches`. The response is `{ url }` for the Stripe-hosted page. Unknown references are skipped. An empty result is `400`. No secret key is `503` with `{ error }`.
+
+## Authentication (Supabase Auth)
+
+- Browser client: `createClient()` from `src/lib/supabase/client.ts`.
+  - Registration: `supabase.auth.signUp({ email, password, options: { data: { full_name } } })`.
+    - If a session is returned, the user is signed in and redirected to `/`.
+    - If email confirmation is required, stay on `/register` and show a message.
+  - Login: `supabase.auth.signInWithPassword({ email, password })`.
+    - On success, redirect to `/`.
+  - Logout: `supabase.auth.signOut()`.
+- Server client: `createClient()` from `src/lib/supabase/server.ts` is used in the header wrapper to read the current user server-side via `supabase.auth.getUser()`.
+- Sessions persist across refresh via `src/proxy.ts`.
