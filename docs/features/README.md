@@ -18,4 +18,18 @@ Dial artwork is `WatchFace`. It takes the three color fields from the row. There
 
 The only live shop data is `public.watches`. Prices render as USD with no cents via `formatPrice()`.
 
-Checkout, accounts, search, and a cart are not features yet. The collection section says checkout is not open.
+## All-Product Catalog
+
+Route `/all-product`, implemented in `src/app/all-product/page.tsx`.
+
+Displays all watches in a responsive grid. Each card shows the image, name, reference, price, and an "Add to Cart" button.
+
+## Shopping Cart
+
+Route `/cart`, implemented in `src/app/cart/page.tsx`.
+
+Displays cart items with image, name, reference, unit price, quantity, line total, and remove. Shows the subtotal. Persists in `localStorage` after the stored cart has loaded.
+
+## Stripe Checkout
+
+Demo checkout using Stripe test mode. **Check out** posts to `/api/checkout_sessions` and redirects to the session URL. Success is `/checkout/success`, which clears the cart. Cancel returns to `/cart`. Missing `STRIPE_SECRET_KEY` returns an error and does not mark the order paid.
