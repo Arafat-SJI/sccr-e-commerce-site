@@ -1,0 +1,22 @@
+---
+description: Timezone storefront conventions for Next.js and the watch catalog
+alwaysApply: true
+---
+
+# Timezone
+
+Next.js App Router, TypeScript, Tailwind v4. The shop is a watch storefront. Supabase holds the catalog.
+
+- Load watches with `getWatches()` in `src/lib/watches.ts`. Do not paste catalog rows into components.
+- Format money with `formatPrice()` in `src/lib/catalog.ts`.
+- Keep visual tokens in `src/app/globals.css` (`paper`, `ink`, `brass`, `night`).
+- Server Components read Supabase. Use `src/lib/supabase/client.ts` only from client components.
+- Do not commit `.env.local`, service-role keys, or database passwords.
+
+```tsx
+// Good: the page renders whatever the table returns
+const pieces = await getWatches();
+
+// Bad: a second catalog living in the component
+const pieces = [{ name: "Meridian", price: 1280 }];
+```

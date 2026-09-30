@@ -1,0 +1,22 @@
+---
+description: How Timezone talks to Supabase
+globs: src/lib/**/*.ts,src/proxy.ts
+alwaysApply: false
+---
+
+# Supabase access
+
+- Read `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` through `getSupabaseEnv()`.
+- `createClient()` in `src/lib/supabase/server.ts` is for Server Components and route handlers.
+- `src/proxy.ts` refreshes the auth session. Skip that refresh when the env vars are missing.
+- Public catalog reads go through RLS. The anon role may `select` from `public.watches` only.
+- Do not add a service-role client to the Next.js app for storefront reads.
+
+```ts
+const { data, error } = await supabase
+  .from("watches")
+  .select("name, reference, price, summary, dial, hands, bezel")
+  .order("sort_order", { ascending: true });
+
+if (error) throw new Error(error.message);
+```
